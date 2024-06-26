@@ -1,0 +1,25 @@
+name: Validate Commit Message
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Validate commit messages
+        run: |
+          # Get the merge commit message
+          COMMIT_MESSAGE=$(git log -1 --pretty=%B ${{ github.event.pull_request.merge_commit_sha }})
+
+          # Check if the commit message matches the required pattern
+          if [[ ! "$COMMIT_MESSAGE" =~ JIRA:\ \[[A-Z0-9]+-[0-9]+\](\[[A-Z0-9]+-[0-9]+\])* ]]; then
+            echo "Commit message does not follow the required pattern: JIRA: [ID1][ID2]"
+            exit 1
+          fi
